@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran Token Listrik</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f4f9;
+        }
+    </style>
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100">
+    <div class="container border shadow-sm p-4 rounded bg-white" style="max-width: 400px;">
+        <h1 class="text-center mb-4">Pembayaran Token Listrik</h1>
+        <form id="paymentForm">
+            <div class="mb-3">
+                <label for="meterNumber" class="form-label">Nomor Meteran:</label>
+                <input type="text" id="meterNumber" class="form-control" placeholder="Masukkan nomor meteran" required>
+            </div>
+            <div class="mb-3">
+                <label for="amount" class="form-label">Jumlah Pembayaran (Rp):</label>
+                <input type="number" id="amount" class="form-control" placeholder="Masukkan jumlah" required>
+            </div>
+            <button type="button" id="payButton" class="btn btn-primary w-100">Bayar Sekarang</button>
+        </form>
+        <div id="result" class="alert alert-success mt-4 d-none"></div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        document.getElementById('payButton').addEventListener('click', function () {
+            const meterNumber = document.getElementById('meterNumber').value;
+            const amount = document.getElementById('amount').value;
+
+            if (!meterNumber || !amount) {
+                alert('Mohon isi semua kolom!');
+                return;
+            }
+
+            // Simulasi token listrik
+            const token = Array.from({ length: 20 }, () => Math.floor(Math.random() * 10)).join('');
+
+            // Tampilkan hasil
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h4>Pembayaran Berhasil!</h4>
+                <p><strong>Nomor Meteran:</strong> ${meterNumber}</p>
+                <p><strong>Jumlah:</strong> Rp ${amount}</p>
+                <p><strong>Token Listrik Anda:</strong> ${token}</p>
+            `;
+            resultDiv.classList.remove('d-none');
+        });
+    </script>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
