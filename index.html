@@ -1,36 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 Web Server</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h1 { color: #4CAF50; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32 LCD Control</title>
 </head>
 <body>
-
-    <h1>ESP32 Web Server</h1>
-    <p>ESP32 is connected to Wi-Fi!</p>
+  <h1>Set LCD Text</h1>
+  
+  <form action="/setText" method="GET">
+    <label for="line1">Line 1:</label>
+    <input type="text" id="line1" name="line1" required><br><br>
     
-    <h3>Request Information</h3>
-    <p id="request">Loading...</p>
-
-    <script>
-        // Ganti dengan IP ESP32 yang terhubung ke Wi-Fi
-        const esp32IP = "192.168.1.5"; // IP yang diberikan oleh router setelah ESP32 terhubung
-
-        // Mengambil data dari server ESP32
-        fetch(`http://${esp32IP}`)
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById("request").textContent = data;
-            })
-            .catch(error => {
-                console.log('Error:', error);
-            });
-    </script>
-
+    <label for="line2">Line 2:</label>
+    <input type="text" id="line2" name="line2" required><br><br>
+    
+    <input type="submit" value="Set Text">
+  </form>
+  
 </body>
 </html>
