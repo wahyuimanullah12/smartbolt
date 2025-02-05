@@ -3,20 +3,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ESP32 LCD Control</title>
+  <title>Smart Bolt</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    p {
+      font-size: 18px;
+      color: #555;
+    }
+
+    .status {
+      font-size: 20px;
+      color: #2ecc71;
+      font-weight: bold;
+    }
+
+    .input-container {
+      margin-top: 20px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
 </head>
 <body>
-  <h1>Set LCD Text</h1>
-  
-  <form action="/setText" method="GET">
-    <label for="line1">Line 1:</label>
-    <input type="text" id="line1" name="line1" required><br><br>
-    
-    <label for="line2">Line 2:</label>
-    <input type="text" id="line2" name="line2" required><br><br>
-    
-    <input type="submit" value="Set Text">
-  </form>
-  
+  <h1>Smart Bolt Dashboard</h1>
+  <p>ESP32 Control Panel</p>
+
+  <div class="status">
+    <p id="statusText">Status: Not Connected</p>
+  </div>
+
+  <div class="input-container">
+    <input type="text" id="lcdText" placeholder="Enter text for LCD" />
+    <button onclick="sendToESP32()">Update LCD</button>
+  </div>
+
+  <script>
+    // Fungsi untuk mengirim data ke ESP32
+    function sendToESP32() {
+      var lcdText = document.getElementById("lcdText").value;
+      
+      // Jika ada teks yang dimasukkan
+      if (lcdText) {
+        fetch(`http://192.168.1.100/update?text=${lcdText}`, { // Ganti dengan IP ESP32
+          method: 'GET'
+        })
+        .then(response => response.text())
+        .then(data => {
+          console.log(data);
+          document.getElementById("statusText").innerText = "Status: " + data;  // Menampilkan status pada halaman web
+        })
+        .catch(error => console.error('Error:', error));
+      } else {
+        alert("Please enter text to display.");
+      }
+    }
+  </script>
 </body>
 </html>
