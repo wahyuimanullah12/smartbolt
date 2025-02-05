@@ -73,7 +73,7 @@
       
       // Jika ada teks yang dimasukkan
       if (lcdText) {
-        fetch(`https://wahyuimanullah12.github.io/smartbolt//update?text=${lcdText}`, { // Ganti dengan IP ESP32
+        fetch(`http://192.168.1.5/update?text=${lcdText}`, { // Ganti dengan IP ESP32
           method: 'GET'
         })
         .then(response => response.text())
