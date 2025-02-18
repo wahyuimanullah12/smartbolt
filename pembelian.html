@@ -43,11 +43,12 @@
                     <input type="text" class="form-control" id="meterNumber" placeholder="Masukkan no meteran" required>
                 </div>
 
-                <!-- Scanner Barcode Placeholder -->
+                <!-- Scanner Barcode -->
                 <div class="mb-3 d-none" id="barcodeInputContainer">
                     <label class="form-label">Scan Barcode</label>
                     <p class="text-muted">Fitur ini membutuhkan akses kamera Anda untuk memindai barcode no meteran.</p>
-                    <button type="button" class="btn btn-secondary">Mulai Scan Barcode</button>
+                    <video id="barcodeVideo" width="100%" autoplay muted></video>
+                    <button type="button" class="btn btn-secondary mt-2" id="stopCameraButton">Hentikan Kamera</button>
                 </div>
 
                 <!-- Nominal Token -->
@@ -81,16 +82,48 @@
         const inputBarcodeButton = document.getElementById('inputBarcodeButton');
         const manualInputContainer = document.getElementById('manualInputContainer');
         const barcodeInputContainer = document.getElementById('barcodeInputContainer');
+        const barcodeVideo = document.getElementById('barcodeVideo');
+        const stopCameraButton = document.getElementById('stopCameraButton');
+        let cameraStream;
 
+        // Fungsi untuk mengatur tampilan input manual
         inputManualButton.addEventListener('click', () => {
             manualInputContainer.classList.remove('d-none');
             barcodeInputContainer.classList.add('d-none');
+            stopCamera();
         });
 
+        // Fungsi untuk mengatur tampilan input barcode
         inputBarcodeButton.addEventListener('click', () => {
             barcodeInputContainer.classList.remove('d-none');
             manualInputContainer.classList.add('d-none');
+            startCamera();
         });
+
+        // Fungsi untuk memulai kamera
+        function startCamera() {
+            navigator.mediaDevices
+                .getUserMedia({ video: true })
+                .then((stream) => {
+                    cameraStream = stream;
+                    barcodeVideo.srcObject = stream;
+                    barcodeVideo.play();
+                })
+                .catch((error) => {
+                    console.error("Tidak dapat mengakses kamera:", error);
+                    alert("Gagal membuka kamera. Pastikan izin diberikan.");
+                });
+        }
+
+        // Fungsi untuk menghentikan kamera
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach((track) => track.stop());
+                barcodeVideo.srcObject = null;
+            }
+        }
+
+        stopCameraButton.addEventListener('click', stopCamera);
 
         // Script untuk menghitung total harga
         document.getElementById('nominal').addEventListener('change', calculateTotal);
