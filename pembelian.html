@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembelian Token Pulsa Listrik</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            font-family: 'Roboto', sans-serif;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Pembelian Token Pulsa Listrik</h1>
+        <div class="card p-4">
+            <form>
+                <!-- Pilihan Input No Meteran -->
+                <div class="mb-3">
+                    <label class="form-label">Pilih Cara Input No Meteran</label>
+                    <div class="btn-group w-100" role="group" aria-label="Input Options">
+                        <button type="button" class="btn btn-outline-primary" id="inputBarcodeButton">Foto Barcode</button>
+                        <button type="button" class="btn btn-outline-primary" id="inputManualButton">Masukkan No Meteran</button>
+                    </div>
+                </div>
+
+                <!-- Input No Meteran -->
+                <div class="mb-3 d-none" id="manualInputContainer">
+                    <label for="meterNumber" class="form-label">No Meteran</label>
+                    <input type="text" class="form-control" id="meterNumber" placeholder="Masukkan no meteran" required>
+                </div>
+
+                <!-- Scanner Barcode Placeholder -->
+                <div class="mb-3 d-none" id="barcodeInputContainer">
+                    <label class="form-label">Scan Barcode</label>
+                    <p class="text-muted">Fitur ini membutuhkan akses kamera Anda untuk memindai barcode no meteran.</p>
+                    <button type="button" class="btn btn-secondary">Mulai Scan Barcode</button>
+                </div>
+
+                <!-- Nominal Token -->
+                <div class="mb-3">
+                    <label for="nominal" class="form-label">Nominal Token</label>
+                    <select class="form-select" id="nominal" required>
+                        <option value="" disabled selected>Pilih nominal token</option>
+                        <option value="20000">Rp20,000</option>
+                        <option value="50000">Rp50,000</option>
+                        <option value="100000">Rp100,000</option>
+                        <option value="200000">Rp200,000</option>
+                    </select>
+                </div>
+
+                <!-- Total Harga -->
+                <div class="mb-3">
+                    <label for="totalPrice" class="form-label">Total Harga (Rp)</label>
+                    <input type="text" class="form-control" id="totalPrice" placeholder="Total harga akan otomatis terisi" readonly>
+                </div>
+
+                <!-- Tombol -->
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">Beli Token</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const inputManualButton = document.getElementById('inputManualButton');
+        const inputBarcodeButton = document.getElementById('inputBarcodeButton');
+        const manualInputContainer = document.getElementById('manualInputContainer');
+        const barcodeInputContainer = document.getElementById('barcodeInputContainer');
+
+        inputManualButton.addEventListener('click', () => {
+            manualInputContainer.classList.remove('d-none');
+            barcodeInputContainer.classList.add('d-none');
+        });
+
+        inputBarcodeButton.addEventListener('click', () => {
+            barcodeInputContainer.classList.remove('d-none');
+            manualInputContainer.classList.add('d-none');
+        });
+
+        // Script untuk menghitung total harga
+        document.getElementById('nominal').addEventListener('change', calculateTotal);
+
+        function calculateTotal() {
+            const nominal = document.getElementById('nominal').value;
+            const total = nominal ? parseInt(nominal) + (0.05 * parseInt(nominal)) : 0; // Tambahkan pajak 5%
+            document.getElementById('totalPrice').value = total ? `Rp${total.toLocaleString()}` : '';
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
