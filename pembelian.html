@@ -119,67 +119,103 @@
         const manualInputContainer = document.getElementById('manualInputContainer');
         const barcodeInputContainer = document.getElementById('barcodeInputContainer');
         const barcodeVideo = document.getElementById('barcodeVideo');
+        const meterNumberInput = document.getElementById('meterNumber'); // Input untuk No Meteran
         const stopCameraButton = document.getElementById('stopCameraButton');
         let cameraStream;
-
+        let barcodeDetector;
+    
+        // Event untuk memilih input manual
         inputManualButton.addEventListener('click', () => {
             manualInputContainer.classList.remove('hidden');
             barcodeInputContainer.classList.add('hidden');
             stopCamera();
         });
-
+    
+        // Event untuk memilih input via barcode
         inputBarcodeButton.addEventListener('click', () => {
             barcodeInputContainer.classList.remove('hidden');
             manualInputContainer.classList.add('hidden');
             startCamera();
         });
-
+    
+        // Fungsi untuk memulai kamera
         function startCamera() {
-            navigator.mediaDevices
-                .getUserMedia({
-                    video: {
-                        facingMode: { exact: "environment" }
-                    }
-                })
-                .then((stream) => {
-                    cameraStream = stream;
-                    barcodeVideo.srcObject = stream;
-                    barcodeVideo.play();
-                })
-                .catch((error) => {
-                    console.error("Tidak dapat mengakses kamera belakang:", error);
-                    alert("Kamera belakang tidak tersedia. Menggunakan kamera default.");
-                    navigator.mediaDevices
-                        .getUserMedia({ video: true })
-                        .then((fallbackStream) => {
-                            cameraStream = fallbackStream;
-                            barcodeVideo.srcObject = fallbackStream;
-                            barcodeVideo.play();
-                        })
-                        .catch((fallbackError) => {
-                            console.error("Gagal membuka kamera:", fallbackError);
-                            alert("Gagal membuka kamera. Pastikan izin diberikan.");
-                        });
-                });
+            if ('BarcodeDetector' in window) {
+                barcodeDetector = new BarcodeDetector({ formats: ['qr_code', 'code_128', 'ean_13'] });
+                navigator.mediaDevices
+                    .getUserMedia({ video: { facingMode: { exact: 'environment' } } })
+                    .then((stream) => {
+                        cameraStream = stream;
+                        barcodeVideo.srcObject = stream;
+                        barcodeVideo.play();
+                        detectBarcode(); // Memulai deteksi barcode
+                    })
+                    .catch((error) => {
+                        console.error('Tidak dapat mengakses kamera belakang:', error);
+                        alert('Kamera belakang tidak tersedia. Menggunakan kamera default.');
+                        navigator.mediaDevices
+                            .getUserMedia({ video: true })
+                            .then((fallbackStream) => {
+                                cameraStream = fallbackStream;
+                                barcodeVideo.srcObject = fallbackStream;
+                                barcodeVideo.play();
+                                detectBarcode(); // Deteksi tetap berjalan pada kamera default
+                            })
+                            .catch((fallbackError) => {
+                                console.error('Gagal membuka kamera:', fallbackError);
+                                alert('Gagal membuka kamera. Pastikan izin diberikan.');
+                            });
+                    });
+            } else {
+                alert('Browser Anda tidak mendukung deteksi barcode secara langsung.');
+            }
         }
-
+    
+        // Fungsi untuk menghentikan kamera
         function stopCamera() {
             if (cameraStream) {
                 cameraStream.getTracks().forEach((track) => track.stop());
                 barcodeVideo.srcObject = null;
             }
         }
-
+    
+        // Fungsi untuk mendeteksi barcode
+        function detectBarcode() {
+            const detect = () => {
+                if (!cameraStream || !barcodeDetector) return;
+    
+                barcodeDetector.detect(barcodeVideo)
+                    .then((barcodes) => {
+                        if (barcodes.length > 0) {
+                            const barcodeData = barcodes[0].rawValue;
+                            meterNumberInput.value = barcodeData; // Menampilkan hasil ke input No Meteran
+                            alert(`Barcode terbaca: ${barcodeData}`);
+                            stopCamera();
+                        } else {
+                            requestAnimationFrame(detect); // Lanjutkan deteksi jika belum ada barcode
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Kesalahan saat mendeteksi barcode:', err);
+                    });
+            };
+    
+            requestAnimationFrame(detect);
+        }
+    
+        // Event untuk menghentikan kamera
         stopCameraButton.addEventListener('click', stopCamera);
-
+    
+        // Menghitung total harga
         document.getElementById('nominal').addEventListener('change', calculateTotal);
-
+    
         function calculateTotal() {
             const nominal = document.getElementById('nominal').value;
             const total = nominal ? parseInt(nominal) + (0.05 * parseInt(nominal)) : 0;
             document.getElementById('totalPrice').value = total ? `Rp${total.toLocaleString()}` : '';
         }
     </script>
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
