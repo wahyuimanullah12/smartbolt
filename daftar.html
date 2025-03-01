@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Pengguna Baru</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            font-family: 'Roboto', sans-serif;
+        }
+        .form-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #343a40;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: linear-gradient(to right, #0066ff, #0033cc);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(to right, #005ce6, #002eb3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="form-container">
+                    <h1 class="text-center mb-4"><i class="bi bi-person-circle"></i> Tambah Pengguna Baru</h1>
+                    <form id="userForm">
+                        <div class="mb-3">
+                            <label for="nama" class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-control" id="nama" name="nama" placeholder="Masukkan nama lengkap" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="alamat" class="form-label">Alamat</label>
+                            <textarea class="form-control" id="alamat" name="alamat" rows="3" placeholder="Masukkan alamat lengkap" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="noRumah" class="form-label">No. Rumah</label>
+                            <input type="text" class="form-control" id="noRumah" name="noRumah" placeholder="Masukkan nomor rumah" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="kodePos" class="form-label">Kode Pos</label>
+                            <input type="text" class="form-control" id="kodePos" name="kodePos" placeholder="Masukkan kode pos" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="noKK" class="form-label">No. Kartu Keluarga</label>
+                            <input type="text" class="form-control" id="noKK" name="noKK" placeholder="Masukkan nomor Kartu Keluarga" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="noHp" class="form-label">No. HP</label>
+                            <input type="tel" class="form-control" id="noHp" name="noHp" placeholder="Masukkan nomor HP" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Masukkan email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="uuid" class="form-label">UUID Akun</label>
+                            <input type="text" class="form-control" id="uuid" name="uuid" readonly>
+                        </div>
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-primary btn-lg" id="saveButton" onclick="generateUUID()"><i class="bi bi-save"></i> Simpan</button>
+                        </div>
+                    </form>
+                    <canvas id="barcodeCanvas" style="display: none;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateUUID() {
+            const noKK = document.getElementById("noKK").value;
+            const kodePos = document.getElementById("kodePos").value;
+            const noRumah = document.getElementById("noRumah").value;
+            const today = new Date();
+
+            const date = String(today.getDate()).padStart(2, '0') + 
+                         String(today.getMonth() + 1).padStart(2, '0') + 
+                         today.getFullYear();
+
+            if (noKK && kodePos && noRumah) {
+                const uuid = `${noKK.slice(0, 4)}-${kodePos}-${noRumah}-${date}`;
+                document.getElementById("uuid").value = uuid;
+
+                const saveButton = document.getElementById("saveButton");
+                saveButton.innerHTML = '<i class="bi bi-download"></i> Simpan dan Download Barcode';
+                saveButton.onclick = () => downloadBarcode(uuid);
+
+                alert("UUID berhasil dibuat: " + uuid);
+            } else {
+                alert("Pastikan semua data terisi sebelum membuat UUID.");
+            }
+        }
+
+        function downloadBarcode(uuid) {
+            const canvas = document.getElementById("barcodeCanvas");
+            JsBarcode(canvas, uuid, { format: "CODE128", width: 2, height: 50 });
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = "barcode.png";
+            link.click();
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

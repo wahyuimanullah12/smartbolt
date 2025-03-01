@@ -106,8 +106,25 @@
                 </div>
 
                 <!-- Tombol -->
-                <div class="d-flex justify-content-end">
+                <div class="d-flex justify-content-end mb-4">
                     <button type="submit" class="btn btn-primary px-4">Beli Token</button>
+                </div>
+
+                <!-- Cek Pulsa -->
+                <div class="mb-4">
+                    <label for="cekPulsa" class="form-label">Cek Pulsa</label>
+                    <button type="button" class="btn btn-success w-100" id="checkPulsaButton">Cek Pulsa</button>
+                    <div class="mt-3 hidden" id="pulsaResult">
+                        <label class="form-label">Pulsa Tersisa:</label>
+                        <input type="text" class="form-control" id="pulsaValue" readonly>
+                    </div>
+                </div>
+
+                <!-- Riwayat Pembelian -->
+                <div class="mb-4">
+                    <label for="riwayat" class="form-label">Riwayat Pembelian</label>
+                    <button type="button" class="btn btn-secondary w-100" id="checkHistoryButton">Lihat Riwayat Pembelian</button>
+                    <ul class="list-group mt-3 hidden" id="purchaseHistory"></ul>
                 </div>
             </form>
         </div>
@@ -119,25 +136,28 @@
         const manualInputContainer = document.getElementById('manualInputContainer');
         const barcodeInputContainer = document.getElementById('barcodeInputContainer');
         const barcodeVideo = document.getElementById('barcodeVideo');
-        const meterNumberInput = document.getElementById('meterNumber'); // Input untuk No Meteran
+        const meterNumberInput = document.getElementById('meterNumber');
         const stopCameraButton = document.getElementById('stopCameraButton');
+        const pulsaResult = document.getElementById('pulsaResult');
+        const pulsaValue = document.getElementById('pulsaValue');
+        const purchaseHistory = document.getElementById('purchaseHistory');
         let cameraStream;
         let barcodeDetector;
-    
+
         // Event untuk memilih input manual
         inputManualButton.addEventListener('click', () => {
             manualInputContainer.classList.remove('hidden');
             barcodeInputContainer.classList.add('hidden');
             stopCamera();
         });
-    
+
         // Event untuk memilih input via barcode
         inputBarcodeButton.addEventListener('click', () => {
             barcodeInputContainer.classList.remove('hidden');
             manualInputContainer.classList.add('hidden');
             startCamera();
         });
-    
+
         // Fungsi untuk memulai kamera
         function startCamera() {
             if ('BarcodeDetector' in window) {
@@ -148,29 +168,17 @@
                         cameraStream = stream;
                         barcodeVideo.srcObject = stream;
                         barcodeVideo.play();
-                        detectBarcode(); // Memulai deteksi barcode
+                        detectBarcode();
                     })
                     .catch((error) => {
                         console.error('Tidak dapat mengakses kamera belakang:', error);
                         alert('Kamera belakang tidak tersedia. Menggunakan kamera default.');
-                        navigator.mediaDevices
-                            .getUserMedia({ video: true })
-                            .then((fallbackStream) => {
-                                cameraStream = fallbackStream;
-                                barcodeVideo.srcObject = fallbackStream;
-                                barcodeVideo.play();
-                                detectBarcode(); // Deteksi tetap berjalan pada kamera default
-                            })
-                            .catch((fallbackError) => {
-                                console.error('Gagal membuka kamera:', fallbackError);
-                                alert('Gagal membuka kamera. Pastikan izin diberikan.');
-                            });
                     });
             } else {
                 alert('Browser Anda tidak mendukung deteksi barcode secara langsung.');
             }
         }
-    
+
         // Fungsi untuk menghentikan kamera
         function stopCamera() {
             if (cameraStream) {
@@ -178,44 +186,76 @@
                 barcodeVideo.srcObject = null;
             }
         }
-    
+
         // Fungsi untuk mendeteksi barcode
         function detectBarcode() {
             const detect = () => {
                 if (!cameraStream || !barcodeDetector) return;
-    
+
                 barcodeDetector.detect(barcodeVideo)
                     .then((barcodes) => {
                         if (barcodes.length > 0) {
                             const barcodeData = barcodes[0].rawValue;
-                            meterNumberInput.value = barcodeData; // Menampilkan hasil ke input No Meteran
+                            meterNumberInput.value = barcodeData;
                             alert(`Barcode terbaca: ${barcodeData}`);
                             stopCamera();
                         } else {
-                            requestAnimationFrame(detect); // Lanjutkan deteksi jika belum ada barcode
+                            requestAnimationFrame(detect);
                         }
                     })
                     .catch((err) => {
                         console.error('Kesalahan saat mendeteksi barcode:', err);
                     });
             };
-    
+
             requestAnimationFrame(detect);
         }
-    
+
         // Event untuk menghentikan kamera
         stopCameraButton.addEventListener('click', stopCamera);
-    
+
         // Menghitung total harga
         document.getElementById('nominal').addEventListener('change', calculateTotal);
-    
+
         function calculateTotal() {
             const nominal = document.getElementById('nominal').value;
             const total = nominal ? parseInt(nominal) + (0.05 * parseInt(nominal)) : 0;
             document.getElementById('totalPrice').value = total ? `Rp${total.toLocaleString()}` : '';
         }
+
+        // Event untuk cek pulsa
+        document.getElementById('checkPulsaButton').addEventListener('click', () => {
+            const meterNumber = meterNumberInput.value;
+            if (!meterNumber) {
+                alert('Harap masukkan atau pilih nomor meteran terlebih dahulu!');
+                return;
+            }
+
+            // Simulasi hasil cek pulsa
+            pulsaResult.classList.remove('hidden');
+            pulsaValue.value = 'Rp100,000';
+        });
+
+        // Event untuk cek riwayat pembelian
+        document.getElementById('checkHistoryButton').addEventListener('click', () => {
+            purchaseHistory.classList.remove('hidden');
+            purchaseHistory.innerHTML = '';
+
+            // Simulasi riwayat pembelian
+            const history = [
+                'Rp20,000 - 01/01/2025',
+                'Rp50,000 - 05/01/2025',
+                'Rp100,000 - 10/01/2025'
+            ];
+
+            history.forEach(item => {
+                const li = document.createElement('li');
+                li.classList.add('list-group-item');
+                li.textContent = item;
+                purchaseHistory.appendChild(li);
+            });
+        });
     </script>
-    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
